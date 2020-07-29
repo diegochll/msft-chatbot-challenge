@@ -19,10 +19,13 @@ class Relax extends ComponentDialog {
   constructor(id) {
     super(id || "Relax");
 
-    this.addDialog(new ChoicePrompt("relaxChoiceStep")).addDialog(
+    this.addDialog(new ChoicePrompt("relaxChoiceStep"))
+    .addDialog(new ConfirmPrompt("endingPrompt"))
+    .addDialog(
       new WaterfallDialog(WATERFALL_DIALOG, [
         this.relaxChoiceStep.bind(this),
         this.showRelaxCard.bind(this),
+        this.finalStep.bind(this)
       ])
     );
 
@@ -71,8 +74,27 @@ class Relax extends ComponentDialog {
         });
         break;
     }
+    const options = {
+      prompt: "Would you like to try another excercise ?",
+      retryPrompt:
+        "That was not a valid choice, please select a time frame from 1 to 5.",
+      choices: this.getPromptChoices(),
+    };
+    return await stepContext.prompt("endingPrompt", options);
+
+    //return await stepContext.endDialog();
+  }
+
+  async finalStep(stepContext) {
+    // User said "yes"
+    if (stepContext.result) {
+      const relaxStatisticsDialog = this.findDialog(WATERFALL_DIALOG);
+      return await stepContext.beginDialog(relaxStatisticsDialog.id);
+    }
     await stepContext.context.sendActivity(
-      "Type anything if you'd like to continue to another relaxation exercise"
+      "I hope I have been helpful, have a good day and don't forget to try the statistics and Good News features!!!",
+      undefined,
+      InputHints.IgnoringInput
     );
 
     return await stepContext.endDialog();
@@ -84,6 +106,19 @@ class Relax extends ComponentDialog {
 
   createAdaptiveCard() {
     return CardFactory.adaptiveCard(AdaptiveCard);
+  }
+
+  getPromptChoices(){
+    const promptChoices = [
+      {
+        value: "Yes",
+        synonyms: ["yes"]
+      },
+      {
+        value: "No",
+        synonyms: ["yes"]
+      }
+    ]
   }
 
   getChoices() {
