@@ -6,12 +6,14 @@ const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, WaterfallDia
 const AdaptiveCard = require('../resources/adaptiveCard.json');
 const { CovidStatistics } = require('./covidStatistics');
 const { Greet } = require('./greet');
+const { GoodNews } = require('./goodNews');
 const { LuisRecognizer } = require('botbuilder-ai');
 
 const { ActivityTypes } = require('botbuilder-core');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const COVID_STATISTICS = 'CovidStatistics';
+const GOODNEWS = 'GoodNews';
 const GREET = 'Greet';
 
 class MainDialog extends ComponentDialog {
@@ -22,6 +24,7 @@ class MainDialog extends ComponentDialog {
         // Define the main dialog and its related components.
         this.addDialog(new CovidStatistics());
         this.addDialog(new Greet());
+        this.addDialog(new GoodNews());
         this.addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
             this.processActivity.bind(this)
         ]));
@@ -37,6 +40,7 @@ class MainDialog extends ComponentDialog {
      * @param {*} accessor
      */
     async run(turnContext, accessor) {
+        console.log("Run --- ")
         const dialogSet = new DialogSet(accessor);
         dialogSet.add(this);
 
@@ -93,6 +97,8 @@ class MainDialog extends ComponentDialog {
                 return await this.beginCovidStatistics(stepContext);
             case 'Greet':
                 return await this.beginGreet(stepContext);
+            case 'GoodNews':
+                    return await this.beginGoodNews(stepContext);
             default:
                 // We didn't get an event name we can handle.
                 await stepContext.context.sendActivity(
@@ -142,6 +148,8 @@ class MainDialog extends ComponentDialog {
                     return await this.beginCovidStatistics(stepContext);
                 case 'Greet':
                     return await this.beginGreet(stepContext);
+                case 'GoodNews':
+                    return await this.beginGoodNews(stepContext);
                 default: {
                     // Catch all for unhandled intents.
                     const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ topIntent.intent })`;
@@ -154,9 +162,9 @@ class MainDialog extends ComponentDialog {
     }
 
     async beginCovidStatistics(stepContext) {
+        console.log("Begin Covid Stats")
         const activity = stepContext.context.activity;
         const covidStatisticsDetails = activity.value || {};
-
         // Start the covidStatistics dialog.
         const covidStatisticsDialog = this.findDialog(COVID_STATISTICS);
         return await stepContext.beginDialog(covidStatisticsDialog.id, covidStatisticsDetails);
@@ -169,6 +177,16 @@ class MainDialog extends ComponentDialog {
         // Start the covidStatistics dialog.
         const greetDialog = this.findDialog(GREET);
         return await stepContext.beginDialog(greetDialog.id, greetDetails);
+    }
+    
+    async beginGoodNews(stepContext) {
+        console.log("Good News Started")
+        const activity = stepContext.context.activity;
+        const goodNewsDetails = activity.value || {};
+
+        // Start the covidStatistics dialog.
+        const goodNewsDialog = this.findDialog(GOODNEWS);
+        return await stepContext.beginDialog(goodNewsDialog.id, goodNewsDetails);
     }
 }
 

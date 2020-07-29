@@ -30,6 +30,7 @@ class Greet extends ComponentDialog {
         return await stepContext.prompt('featureOptionsPrompt', options);    
     }
     async redirectStep(stepContext) {
+        console.log(stepContext.result.value)
         switch (stepContext.result.value) {
             case 'Covid Statistics':
                 return stepContext.next('Covid Statistics');
