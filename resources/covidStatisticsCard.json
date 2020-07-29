@@ -1,0 +1,156 @@
+﻿{
+  "type": "AdaptiveCard",
+  "body": [
+      {
+          "type": "Container",
+          "items": [
+              {
+                  "type": "Container",
+                  "items": [
+                      {
+                          "type": "ColumnSet",
+                          "columns": [
+                              {
+                                  "type": "Column",
+                                  "width": "auto",
+                                  "items": [
+                                      {
+                                          "type": "Image",
+                                          "url": "${country_flag}",
+                                          "size": "small"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "Column",
+                                  "items": [
+                                      {
+                                          "type": "TextBlock",
+                                          "text": "${title}",
+                                          "size": "medium",
+                                          "weight": "bolder"
+                                      },
+                                      {
+                                          "type": "TextBlock",
+                                          "size": "Medium",
+                                          "text": "${country} - ${time_frame}",
+                                          "spacing": "None",
+                                          "height": "stretch",
+                                          "color": "Dark",
+                                          "fontType": "Default",
+                                          "maxLines": 1
+                                      }
+                                  ],
+                                  "width": "stretch"
+                              }
+                          ]
+                      }
+                  ]
+              }
+          ]
+      },
+      {
+          "type": "ColumnSet",
+          "columns": [
+              {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                      {
+                          "type": "ColumnSet",
+                          "columns": [
+                              {
+                                  "type": "Column",
+                                  "width": "stretch",
+                                  "items": [
+                                      {
+                                          "type": "TextBlock",
+                                          "text": "Confirmed",
+                                          "size": "Medium"
+                                      },
+                                      {
+                                          "type": "TextBlock",
+                                          "text": "${data.confirmed} ",
+                                          "fontType": "Default",
+                                          "size": "Large",
+                                          "weight": "Bolder",
+                                          "spacing": "Small",
+                                          "color": "Warning"
+                                      }
+                                  ]
+                              },
+                              {
+                                  "type": "Column",
+                                  "width": "stretch",
+                                  "items": [
+                                      {
+                                          "type": "TextBlock",
+                                          "text": "Deaths",
+                                          "size": "Medium"
+                                      },
+                                      {
+                                          "type": "TextBlock",
+                                          "text": "${data.deaths}\n",
+                                          "color": "Dark",
+                                          "size": "Large",
+                                          "height": "stretch",
+                                          "spacing": "Small",
+                                          "fontType": "Default",
+                                          "weight": "Bolder"
+                                      }
+                                  ]
+                              }
+                          ]
+                      }
+                  ]
+              }
+          ]
+      },
+      {
+          "type": "ColumnSet",
+          "columns": [
+              {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                      {
+                          "type": "TextBlock",
+                          "text": "Recovered",
+                          "fontType": "Default",
+                          "size": "Medium"
+                      },
+                      {
+                          "type": "TextBlock",
+                          "text": "${data.recovered}\n",
+                          "color": "Good",
+                          "size": "Large",
+                          "weight": "Bolder",
+                          "spacing": "Small"
+                      }
+                  ]
+              },
+              {
+                  "type": "Column",
+                  "width": "stretch",
+                  "items": [
+                      {
+                          "type": "TextBlock",
+                          "text": "Active",
+                          "size": "Medium"
+                      },
+                      {
+                          "type": "TextBlock",
+                          "text": "${data.active}\n",
+                          "size": "Large",
+                          "weight": "Bolder",
+                          "color": "Attention",
+                          "spacing": "Small"
+                      }
+                  ]
+              }
+          ]
+      }
+  ],
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.2"
+}

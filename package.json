@@ -16,6 +16,7 @@
         "url": "https://github.com/Microsoft/BotBuilder-Samples.git"
     },
     "dependencies": {
+        "adaptivecards-templating": "^1.0.0",
         "axios": "^0.16.2",
         "botbuilder": "~4.9.1",
         "botbuilder-ai": "^4.9.3",

@@ -4,7 +4,8 @@
 const { InputHints, MessageFactory } = require('botbuilder');
 const { ChoicePrompt, ComponentDialog, TextPrompt, ConfirmPrompt, WaterfallDialog } = require('botbuilder-dialogs');
 const { AttachmentLayoutTypes, CardFactory } = require('botbuilder');
-const AdaptiveCard = require('../resources/adaptiveCard.json');
+const covidStatisticsCard = require('../resources/covidStatisticsCard.json');
+const ACData = require('adaptivecards-templating');
 
 const COVID_STATISTICS = 'CovidStatistics';
 const WATERFALL_DIALOG = 'waterfallDialog';
@@ -73,15 +74,31 @@ class CovidStatistics extends ComponentDialog {
     async finalStep(stepContext) {
         // User said "yes" 
         if (stepContext.result) {
-            // Start the covidStatistics dialog.
-            const covidStatisticsDialog = this.findDialog(COVID_STATISTICS);
-            return await stepContext.beginDialog(covidStatisticsDialog.id, covidStatisticsDetails);
+            const covidStatisticsDialog = this.findDialog(WATERFALL_DIALOG);
+            return await stepContext.beginDialog(covidStatisticsDialog.id);
         }   
+        await stepContext.context.sendActivity('I hope I have been helpful, have a good day!!', undefined, InputHints.IgnoringInput);
+           
         return await stepContext.endDialog();
     }
 
     createAdaptiveCard() {
-        return CardFactory.adaptiveCard(AdaptiveCard);
+        const template = new ACData.Template(CardFactory.adaptiveCard(covidStatisticsCard));
+        const card = template.expand({
+            $root: {
+                "title": "Covid-19 Statistics",
+                "country": "Mexico",
+                "country_flag": "https://www.countryflags.io/MX/flat/64.png",
+                "time_frame": "Last Week",
+                "data": {
+                    "confirmed": 2056055,
+                    "deaths": 134178,
+                    "recovered": 511019,
+                    "active": 1410858
+                }
+            }
+        });
+        return card;
     }
 
     getChoices() {
