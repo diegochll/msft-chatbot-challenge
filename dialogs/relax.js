@@ -12,7 +12,6 @@ const {
   WaterfallDialog,
 } = require("botbuilder-dialogs");
 const { AttachmentLayoutTypes, CardFactory } = require("botbuilder");
-const AdaptiveCard = require("../resources/adaptiveCard.json");
 const RELAX = "Relax";
 const WATERFALL_DIALOG = "waterfallDialog";
 
@@ -34,7 +33,6 @@ class Relax extends ComponentDialog {
    * If an time frameStep has not been provided, prompt for one.
    */
   async relaxChoiceStep(stepContext) {
-    console.log(stepContext);
     const relaxChoiceDetails = stepContext.options;
     const options = {
       prompt: "How would you like to relax?",
