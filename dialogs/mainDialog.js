@@ -3,7 +3,7 @@
 
 const { AttachmentLayoutTypes, CardFactory, InputHints } = require('botbuilder');
 const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
-const AdaptiveCard = require('../resources/adaptiveCard.json');
+
 const { CovidStatistics } = require('./covidStatistics');
 const { Greet } = require('./greet');
 const { GoodNews } = require('./goodNews');
