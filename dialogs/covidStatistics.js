@@ -2,16 +2,11 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-const { InputHints, MessageFactory } = require("botbuilder");
-const {
-  ChoicePrompt,
-  ComponentDialog,
-  TextPrompt,
-  ConfirmPrompt,
-  WaterfallDialog,
-} = require("botbuilder-dialogs");
-const { AttachmentLayoutTypes, CardFactory } = require("botbuilder");
-const AdaptiveCard = require("../resources/adaptiveCard.json");
+const { InputHints, MessageFactory } = require('botbuilder');
+const { ChoicePrompt, ComponentDialog, TextPrompt, ConfirmPrompt, WaterfallDialog } = require('botbuilder-dialogs');
+const { AttachmentLayoutTypes, CardFactory } = require('botbuilder');
+const covidStatisticsCard = require('../resources/covidStatisticsCard.json');
+const ACData = require('adaptivecards-templating');
 
 const COVID_STATISTICS = "CovidStatistics";
 const WATERFALL_DIALOG = "waterfallDialog";
@@ -72,35 +67,35 @@ class CovidStatistics extends ComponentDialog {
       };
       return await stepContext.prompt("timeFramePrompt", options);
     }
-    return await stepContext.next(covidStatisticsDetails.timeFrame);
-  }
 
-  /**
-   * Complete the interaction and end the dialog.
-   */
-  async showDataStep(stepContext) {
-    const covidStatisticsDetails = stepContext.options;
+    async finalStep(stepContext) {
+        // User said "yes" 
+        if (stepContext.result) {
+            const covidStatisticsDialog = this.findDialog(WATERFALL_DIALOG);
+            return await stepContext.beginDialog(covidStatisticsDialog.id);
+        }   
+        await stepContext.context.sendActivity('I hope I have been helpful, have a good day!!', undefined, InputHints.IgnoringInput);
+           
+        return await stepContext.endDialog();
+    }
 
-    await stepContext.context.sendActivity({
-      attachments: [this.createAdaptiveCard()],
-    });
-
-    return await stepContext.prompt(
-      "confirmPrompt",
-      "Do you want to know information about another country?",
-      ["yes", "no"]
-    );
-  }
-
-  async finalStep(stepContext) {
-    // User said "yes"
-    if (stepContext.result) {
-      // Start the covidStatistics dialog.
-      const covidStatisticsDialog = this.findDialog(COVID_STATISTICS);
-      return await stepContext.beginDialog(
-        covidStatisticsDialog.id,
-        covidStatisticsDetails
-      );
+    createAdaptiveCard() {
+        const template = new ACData.Template(CardFactory.adaptiveCard(covidStatisticsCard));
+        const card = template.expand({
+            $root: {
+                "title": "Covid-19 Statistics",
+                "country": "Mexico",
+                "country_flag": "https://www.countryflags.io/MX/flat/64.png",
+                "time_frame": "Last Week",
+                "data": {
+                    "confirmed": 2056055,
+                    "deaths": 134178,
+                    "recovered": 511019,
+                    "active": 1410858
+                }
+            }
+        });
+        return card;
     }
     return await stepContext.endDialog();
   }
