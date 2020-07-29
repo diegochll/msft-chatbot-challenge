@@ -10,9 +10,10 @@ const restify = require('restify');
 // Import required bot services.
 // See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
+const { LuisRecognizer } = require('botbuilder-ai');
 
 // This bot's main dialog.
-const { RichCardsBot } = require('./bots/richCardsBot');
+const { covidBot } = require('./bots/covidBot');
 const { MainDialog } = require('./dialogs/mainDialog');
 
 const ENV_FILE = path.join(__dirname, '.env');
@@ -23,6 +24,13 @@ const adapter = new BotFrameworkAdapter({
     appId: process.env.MicrosoftAppId,
     appPassword: process.env.MicrosoftAppPassword
 });
+
+
+const { LuisRecognizerHelper } = require('./dialogs/luisRecognizerHelper');
+const { LuisAppId, LuisAPIKey, LuisAPIHostName } = process.env;
+const luisConfig = { applicationId: LuisAppId, endpointKey: LuisAPIKey, endpoint: `https://${ LuisAPIHostName }` };
+
+const luis = new LuisRecognizerHelper(luisConfig);
 
 // Catch-all for errors.
 adapter.onTurnError = async (context, error) => {
@@ -58,8 +66,8 @@ const conversationState = new ConversationState(memoryStorage);
 const userState = new UserState(memoryStorage);
 
 // Create the main dialog.
-const dialog = new MainDialog();
-const bot = new RichCardsBot(conversationState, userState, dialog);
+const dialog = new MainDialog(luis);
+const bot = new covidBot(conversationState, userState, dialog, luis);
 
 // Create HTTP server.
 const server = restify.createServer();

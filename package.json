@@ -18,6 +18,8 @@
     "dependencies": {
         "axios": "^0.16.2",
         "botbuilder": "~4.9.1",
+        "botbuilder-ai": "^4.9.3",
+        "botbuilder-core": "^4.9.3",
         "botbuilder-dialogs": "~4.9.1",
         "dotenv": "^8.2.0",
         "reddit-wrapper-v2": "^1.1.6",
