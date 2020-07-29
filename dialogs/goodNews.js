@@ -47,10 +47,14 @@ class GoodNews extends ComponentDialog {
 
     //let shuffled = topGoodNews.sort(function(){return .5 - Math.random()});
     //let topNews = shuffled.slice(0,3);
-    //console.log(topNews);
+    let dateCreated = new Date(0);
+    dateCreated.setUTCSeconds(post.created);
+    
+
     AdaptiveCard.body[1].items[0].url = post.thumbnail;
     AdaptiveCard.body[1].items[1].text = post.title;
-    AdaptiveCard.body[2].text = post.created;
+    AdaptiveCard.body[1].items[2].text = dateCreated.toDateString();
+    //AdaptiveCard.body[2].text = post.created;
     AdaptiveCard.actions[0].url = post.newsUrl;
     //  console.log(AdaptiveCard)
     return CardFactory.adaptiveCard(AdaptiveCard);

@@ -33,15 +33,16 @@
                     "size": "Medium",
                     "wrap": true
                     
+                },
+                {
+                    "type": "TextBlock",
+                    "text": "XXX/XX/XX",
+                    "weight": "Lighter",
+                    "size": "Medium"
                 }
             ]
-        },
-        {
-            "type": "TextBlock",
-            "text": "XXX/XX/XX",
-            "weight": "Lighter",
-            "size": "Medium"
         }
+        
     ],
     "actions": [
         {
