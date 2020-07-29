@@ -1,21 +1,29 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-const { AttachmentLayoutTypes, CardFactory } = require('botbuilder');
+const { AttachmentLayoutTypes, CardFactory, InputHints } = require('botbuilder');
 const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
 const AdaptiveCard = require('../resources/adaptiveCard.json');
+const { CovidStatistics } = require('./covidStatistics');
+const { Greet } = require('./greet');
+const { LuisRecognizer } = require('botbuilder-ai');
+
+const { ActivityTypes } = require('botbuilder-core');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
+const COVID_STATISTICS = 'CovidStatistics';
+const GREET = 'Greet';
 
 class MainDialog extends ComponentDialog {
-    constructor() {
+    constructor(luis) {
         super('MainDialog');
 
+        this.luis_=luis;
         // Define the main dialog and its related components.
-        this.addDialog(new ChoicePrompt('cardPrompt'));
+        this.addDialog(new CovidStatistics());
+        this.addDialog(new Greet());
         this.addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
-            this.choiceCardStep.bind(this),
-            this.showCardStep.bind(this)
+            this.processActivity.bind(this)
         ]));
 
         // The initial child Dialog to run.
@@ -39,277 +47,128 @@ class MainDialog extends ComponentDialog {
         }
     }
 
-    /**
-     * 1. Prompts the user if the user is not in the middle of a dialog.
-     * 2. Re-prompts the user when an invalid input is received.
-     *
-     * @param {WaterfallStepContext} stepContext
-     */
-    async choiceCardStep(stepContext) {
-        console.log('MainDialog.choiceCardStep');
-
-        // Create the PromptOptions which contain the prompt and re-prompt messages.
-        // PromptOptions also contains the list of choices available to the user.
-        const options = {
-            prompt: 'What card would you like to see? You can click or type the card name',
-            retryPrompt: 'That was not a valid choice, please select a card or number from 1 to 9.',
-            choices: this.getChoices()
+    async processActivity(stepContext) {
+        // A skill can send trace activities, if needed.
+        const traceActivity = {
+            type: ActivityTypes.Trace,
+            timestamp: new Date(),
+            text: 'ActivityRouterDialog.processActivity()',
+            label: `Got activityType: ${ stepContext.context.activity.type }`
         };
+        await stepContext.context.sendActivity(traceActivity);
 
-        // Prompt the user with the configured PromptOptions.
-        return await stepContext.prompt('cardPrompt', options);
-    }
-
-    /**
-     * Send a Rich Card response to the user based on their choice.
-     * This method is only called when a valid prompt response is parsed from the user's response to the ChoicePrompt.
-     * @param {WaterfallStepContext} stepContext
-     */
-    async showCardStep(stepContext) {
-        console.log('MainDialog.showCardStep');
-
-        switch (stepContext.result.value) {
-        case 'Adaptive Card':
-            await stepContext.context.sendActivity({ attachments: [this.createAdaptiveCard()] });
-            break;
-        case 'Animation Card':
-            await stepContext.context.sendActivity({ attachments: [this.createAnimationCard()] });
-            break;
-        case 'Audio Card':
-            await stepContext.context.sendActivity({ attachments: [this.createAudioCard()] });
-            break;
-        case 'Hero Card':
-            await stepContext.context.sendActivity({ attachments: [this.createHeroCard()] });
-            break;
-        case 'OAuth Card':
-            await stepContext.context.sendActivity({ attachments: [this.createOAuthCard()] });
-            break;
-        case 'Receipt Card':
-            await stepContext.context.sendActivity({ attachments: [this.createReceiptCard()] });
-            break;
-        case 'Signin Card':
-            await stepContext.context.sendActivity({ attachments: [this.createSignInCard()] });
-            break;
-        case 'Thumbnail Card':
-            await stepContext.context.sendActivity({ attachments: [this.createThumbnailCard()] });
-            break;
-        case 'Video Card':
-            await stepContext.context.sendActivity({ attachments: [this.createVideoCard()] });
-            break;
-        default:
-            await stepContext.context.sendActivity({
-                attachments: [
-                    this.createAdaptiveCard(),
-                    this.createAnimationCard(),
-                    this.createAudioCard(),
-                    this.createHeroCard(),
-                    this.createOAuthCard(),
-                    this.createReceiptCard(),
-                    this.createSignInCard(),
-                    this.createThumbnailCard(),
-                    this.createVideoCard()
-                ],
-                attachmentLayout: AttachmentLayoutTypes.Carousel
-            });
-            break;
+        switch (stepContext.context.activity.type) {
+            case ActivityTypes.Event:
+                return await this.onEventActivity(stepContext);
+            case ActivityTypes.Message:
+                return await this.onMessageActivity(stepContext);
+            default:
+                // Catch all for unhandled intents.
+                await stepContext.context.sendActivity(
+                    `Unrecognized ActivityType: "${ stepContext.context.activity.type }".`,
+                    undefined,
+                    InputHints.IgnoringInput
+                );
+                return { status: DialogTurnStatus.complete };
         }
-
-        // Give the user instructions about what to do next
-        await stepContext.context.sendActivity('Type anything to see another card.');
-
-        return await stepContext.endDialog();
+        
     }
 
     /**
-     * Create the choices with synonyms to render for the user during the ChoicePrompt.
-     * (Indexes and upper/lower-case variants do not need to be added as synonyms)
-     */
-    getChoices() {
-        const cardOptions = [
-            {
-                value: 'Adaptive Card',
-                synonyms: ['adaptive']
-            },
-            {
-                value: 'Animation Card',
-                synonyms: ['animation']
-            },
-            {
-                value: 'Audio Card',
-                synonyms: ['audio']
-            },
-            {
-                value: 'OAuth Card',
-                synonyms: ['oauth']
-            },
-            {
-                value: 'Hero Card',
-                synonyms: ['hero']
-            },
-            {
-                value: 'Receipt Card',
-                synonyms: ['receipt']
-            },
-            {
-                value: 'Signin Card',
-                synonyms: ['signin']
-            },
-            {
-                value: 'Thumbnail Card',
-                synonyms: ['thumbnail', 'thumb']
-            },
-            {
-                value: 'Video Card',
-                synonyms: ['video']
-            },
-            {
-                value: 'All Cards',
-                synonyms: ['all']
-            }
-        ];
+    * This method performs different tasks based on event name.
+    */
+    async onEventActivity(stepContext) {
+        const activity = stepContext.context.activity;
+        const traceActivity = {
+            type: ActivityTypes.Trace,
+            timestamp: new Date(),
+            text: 'ActivityRouterDialog.onEventActivity()',
+            label: `Name: ${ activity.name }, Value: ${ JSON.stringify(activity.value) }`
+        };
+        await stepContext.context.sendActivity(traceActivity);
 
-        return cardOptions;
+        // Resolve what to execute based on the event name.
+        switch (activity.name) {
+            case 'CovidStatistics':
+                return await this.beginCovidStatistics(stepContext);
+            case 'Greet':
+                return await this.beginGreet(stepContext);
+            default:
+                // We didn't get an event name we can handle.
+                await stepContext.context.sendActivity(
+                    `Unrecognized EventName: "${ stepContext.context.activity.name }".`,
+                    undefined,
+                    InputHints.IgnoringInput
+                );
+                return { status: DialogTurnStatus.complete };
+        }
     }
 
-    // ======================================
-    // Helper functions used to create cards.
-    // ======================================
+    /**
+    * This method just gets a message activity and runs it through LUIS.
+    */
+    async onMessageActivity(stepContext) {
+        const activity = stepContext.context.activity;
+        const traceActivity = {
+            type: ActivityTypes.Trace,
+            timestamp: new Date(),
+            text: 'ActivityRouterDialog.onMessageActivity()',
+            label: `Text: ${ activity.text }, Value: ${ JSON.stringify(activity.value) }`
+        };
+        await stepContext.context.sendActivity(traceActivity);
 
-    createAdaptiveCard() {
-        return CardFactory.adaptiveCard(AdaptiveCard);
-    }
+        if (!this.luis_ || !this.luis_.isConfigured) {
+            await stepContext.context.sendActivity(
+                'NOTE: LUIS is not configured. To enable all capabilities, please add \'LuisAppId\', \'LuisAPIKey\' and \'LuisAPIHostName\' to the appsettings.json file.',
+                undefined,
+                InputHints.IgnoringInput
+            );
+        } else {
+            // Call LUIS with the utterance.
+            const luisResult = await this.luis_.executeLuisQuery(stepContext.context);
+            const topIntent = LuisRecognizer.topIntent(luisResult);
 
-    createAnimationCard() {
-        return CardFactory.animationCard(
-            'Microsoft Bot Framework',
-            [
-                { url: 'https://i.giphy.com/Ki55RUbOV5njy.gif' }
-            ],
-            [],
-            {
-                subtitle: 'Animation Card'
-            }
-        );
-    }
+            /*
+            // Create a message showing the LUIS result.
+            let resultString = '';
+            resultString += `LUIS results for "${ activity.text }":\n`;
+            resultString += `Intent: "${ topIntent }", Score: ${ luisResult.intents[topIntent].score }\n`;
 
-    createAudioCard() {
-        return CardFactory.audioCard(
-            'I am your father',
-            ['https://www.mediacollege.com/downloads/sound-effects/star-wars/darthvader/darthvader_yourfather.wav'],
-            CardFactory.actions([
-                {
-                    type: 'openUrl',
-                    title: 'Read more',
-                    value: 'https://en.wikipedia.org/wiki/The_Empire_Strikes_Back'
+            await stepContext.context.sendActivity(resultString, undefined, InputHints.IgnoringInput);
+            */
+
+            switch (topIntent) {
+                case 'CovidStatistics':
+                    return await this.beginCovidStatistics(stepContext);
+                case 'Greet':
+                    return await this.beginGreet(stepContext);
+                default: {
+                    // Catch all for unhandled intents.
+                    const didntUnderstandMessageText = `Sorry, I didn't get that. Please try asking in a different way (intent was ${ topIntent.intent })`;
+                    await stepContext.context.sendActivity(didntUnderstandMessageText, didntUnderstandMessageText, InputHints.IgnoringInput);
+                    break;
                 }
-            ]),
-            {
-                subtitle: 'Star Wars: Episode V - The Empire Strikes Back',
-                text: 'The Empire Strikes Back (also known as Star Wars: Episode V – The Empire Strikes Back) is a 1980 American epic space opera film directed by Irvin Kershner. Leigh Brackett and Lawrence Kasdan wrote the screenplay, with George Lucas writing the film\'s story and serving as executive producer. The second installment in the original Star Wars trilogy, it was produced by Gary Kurtz for Lucasfilm Ltd. and stars Mark Hamill, Harrison Ford, Carrie Fisher, Billy Dee Williams, Anthony Daniels, David Prowse, Kenny Baker, Peter Mayhew and Frank Oz.',
-                image: 'https://upload.wikimedia.org/wikipedia/en/3/3c/SW_-_Empire_Strikes_Back.jpg'
             }
-        );
+        }
+        return { status: DialogTurnStatus.complete };
     }
 
-    createHeroCard() {
-        return CardFactory.heroCard(
-            'BotFramework Hero Card',
-            CardFactory.images(['https://sec.ch9.ms/ch9/7ff5/e07cfef0-aa3b-40bb-9baa-7c9ef8ff7ff5/buildreactionbotframework_960.jpg']),
-            CardFactory.actions([
-                {
-                    type: 'openUrl',
-                    title: 'Get started',
-                    value: 'https://docs.microsoft.com/en-us/azure/bot-service/'
-                }
-            ])
-        );
-    }
+    async beginCovidStatistics(stepContext) {
+        const activity = stepContext.context.activity;
+        const covidStatisticsDetails = activity.value || {};
 
-    createOAuthCard() {
-        return CardFactory.oauthCard(
-            'OAuth connection', // Replace with the name of your Azure AD connection
-            'Sign In',
-            'BotFramework OAuth Card'
-        );
+        // Start the covidStatistics dialog.
+        const covidStatisticsDialog = this.findDialog(COVID_STATISTICS);
+        return await stepContext.beginDialog(covidStatisticsDialog.id, covidStatisticsDetails);
     }
+    
+    async beginGreet(stepContext) {
+        const activity = stepContext.context.activity;
+        const greetDetails = activity.value || {};
 
-    createReceiptCard() {
-        return CardFactory.receiptCard({
-            title: 'John Doe',
-            facts: [
-                {
-                    key: 'Order Number',
-                    value: '1234'
-                },
-                {
-                    key: 'Payment Method',
-                    value: 'VISA 5555-****'
-                }
-            ],
-            items: [
-                {
-                    title: 'Data Transfer',
-                    price: '$38.45',
-                    quantity: 368,
-                    image: { url: 'https://github.com/amido/azure-vector-icons/raw/master/renders/traffic-manager.png' }
-                },
-                {
-                    title: 'App Service',
-                    price: '$45.00',
-                    quantity: 720,
-                    image: { url: 'https://github.com/amido/azure-vector-icons/raw/master/renders/cloud-service.png' }
-                }
-            ],
-            tax: '$7.50',
-            total: '$90.95',
-            buttons: CardFactory.actions([
-                {
-                    type: 'openUrl',
-                    title: 'More information',
-                    value: 'https://azure.microsoft.com/en-us/pricing/details/bot-service/'
-                }
-            ])
-        });
-    }
-
-    createSignInCard() {
-        return CardFactory.signinCard(
-            'BotFramework Sign in Card',
-            'https://login.microsoftonline.com',
-            'Sign in'
-        );
-    }
-
-    createThumbnailCard() {
-        return CardFactory.thumbnailCard(
-            'BotFramework Thumbnail Card',
-            [{ url: 'https://sec.ch9.ms/ch9/7ff5/e07cfef0-aa3b-40bb-9baa-7c9ef8ff7ff5/buildreactionbotframework_960.jpg' }],
-            [{
-                type: 'openUrl',
-                title: 'Get started',
-                value: 'https://docs.microsoft.com/en-us/azure/bot-service/'
-            }],
-            {
-                subtitle: 'Your bots — wherever your users are talking.',
-                text: 'Build and connect intelligent bots to interact with your users naturally wherever they are, from text/sms to Skype, Slack, Office 365 mail and other popular services.'
-            }
-        );
-    }
-
-    createVideoCard() {
-        return CardFactory.videoCard(
-            '2018 Imagine Cup World Championship Intro',
-            [{ url: 'https://sec.ch9.ms/ch9/783d/d57287a5-185f-4df9-aa08-fcab699a783d/IC18WorldChampionshipIntro2.mp4' }],
-            [{
-                type: 'openUrl',
-                title: 'Lean More',
-                value: 'https://channel9.msdn.com/Events/Imagine-Cup/World-Finals-2018/2018-Imagine-Cup-World-Championship-Intro'
-            }],
-            {
-                subtitle: 'by Microsoft',
-                text: 'Microsoft\'s Imagine Cup has empowered student developers around the world to create and innovate on the world stage for the past 16 years. These innovations will shape how we live, work and play.'
-            }
-        );
+        // Start the covidStatistics dialog.
+        const greetDialog = this.findDialog(GREET);
+        return await stepContext.beginDialog(greetDialog.id, greetDetails);
     }
 }
 

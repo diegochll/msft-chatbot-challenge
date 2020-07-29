@@ -1,17 +1,10 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
+//COVID EDUCATION BOT
 
 const { ActivityHandler } = require('botbuilder');
+const { LuisRecognizer, QnAMaker } = require('botbuilder-ai');
 
-/**
- * This IBot implementation can run any type of Dialog. The use of type parameterization is to allows multiple different bots
- * to be run at different endpoints within the same project. This can be achieved by defining distinct Controller types
- * each with dependency on distinct IBot types, this way ASP Dependency Injection can glue everything together without ambiguity.
- * The ConversationState is used by the Dialog system. The UserState isn't, however, it might have been used in a Dialog implementation,
- * and the requirement is that all BotState objects are saved at the end of a turn.
- */
-class DialogBot extends ActivityHandler {
-    /**
+class covidBot extends ActivityHandler{
+  /**
      *
      * @param {ConversationState} conversationState
      * @param {UserState} userState
@@ -27,7 +20,7 @@ class DialogBot extends ActivityHandler {
         this.userState = userState;
         this.dialog = dialog;
         this.dialogState = this.conversationState.createProperty('DialogState');
-
+      
         this.onMessage(async (context, next) => {
             console.log('Running dialog with Message Activity.');
 
@@ -37,11 +30,12 @@ class DialogBot extends ActivityHandler {
             // By calling next() you ensure that the next BotHandler is run.
             await next();
         });
+
     }
 
     /**
      * Override the ActivityHandler.run() method to save state changes after the bot logic completes.
-     */
+    */
     async run(context) {
         await super.run(context);
 
@@ -51,4 +45,16 @@ class DialogBot extends ActivityHandler {
     }
 }
 
-module.exports.DialogBot = DialogBot;
+module.exports.covidBot = covidBot;
+
+/*
+const reddit = require('../reddit-config');
+
+reddit.api.get('/r/Coronavirus/search?q=flair_name%3A"Good%20News"&restrict_sr=1&t=day&sort=top', {})
+.then(function(response) {
+   console.log(response[1].data.children[0]) 
+})
+.catch(function(err) {
+    console.log("Error getting karma: ", err);
+})
+*/
