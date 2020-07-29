@@ -28,12 +28,12 @@ class Greet extends ComponentDialog {
 
   async greetStep(stepContext) {
     await stepContext.context.sendActivity(
-      "Hello, I am XXX. Nice to meet you!!",
+      "Hello, I am positivity COVID Bot. Nice to meet you!",
       undefined,
       InputHints.IgnoringInput
     );
     await stepContext.context.sendActivity(
-      "Try some of my features: Ask relaxing a while, forget about covid.  Ask about good news about Covid.  Ask for covid statistics.",
+      "Would you like to relax, learn  good news about coronavirus, or get statistics on coronavirus?",
       undefined,
       InputHints.IgnoringInput
     );
