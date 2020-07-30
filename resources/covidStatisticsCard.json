@@ -150,14 +150,6 @@
                 }
             ],
             "spacing": "Padding"
-        },
-        {
-            "type": "TextBlock",
-            "text": "Retrieved from Johns Hopkins CSSE",
-            "weight": "Lighter",
-            "size": "Small",
-            "spacing": "None",
-            "height": "stretch"
         }
     ],
     "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
