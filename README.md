@@ -1,8 +1,19 @@
-# Using-Cards
+# COVID-19 Positivity Bot
 
-Bot Framework v4 using cards bot sample
+## Our Problem
+Social media and news outlets love to focus too much on negative COVID-19 related news. This creates a negative effect on people all around the world, including but not limited to elevated levels of stress and anxiety.
 
-This bot has been created using [Microsoft Bot Framework][1], it shows how to create a bot that uses rich cards to enhance your bot design.
+## Our Solution
+A Chat-bot that aims to help the user’s mental health through positivity, giving them resources to help ease the tension that these tough times bring.
+
+### Features
+- Good News Feed
+    - Fetches and displays the most upvoted posts from the r/Coronavirus subreddit.. flaired as **Good News** in a very friendly card for the user
+- Mental Health care/Meditation Techniques
+    - Our bot guides the user through techniques for relaxation and anxiety relief
+- Real-Time COVID-19 Statistics
+    - Cards with Real-Time statistics for a country of the users choice
+
 
 ## Prerequisites
 
@@ -12,19 +23,22 @@ This bot has been created using [Microsoft Bot Framework][1], it shows how to cr
     # determine node version
     node -v
     ```
+- [BotFramework Emulator](https://github.com/microsoft/BotFramework-Emulator/releases/tag/v4.9.0) to try out the bot locally
 
-## To try this sample
+- Install the Bot Framework Emulator version 4.9.0 or greater from [here](https://github.com/Microsoft/BotFramework-Emulator/releases)
+
+## To try our project
 
 - Clone the repository
 
     ```bash
-    git clone https://github.com/microsoft/botbuilder-samples.git
+    git clone https://github.com/diegochll/msft-chatbot-challenge.git
     ```
 
-- In a terminal, navigate to `samples/javascript_nodejs/06.using-cards`
+- In a terminal, navigate to the folder created by the git clone
 
     ```bash
-    cd samples/javascript_nodejs/06.using-cards
+    cd msft-chatbot-challenge
     ```
 
 - Install modules
@@ -36,14 +50,10 @@ This bot has been created using [Microsoft Bot Framework][1], it shows how to cr
 - Start the bot
 
     ```bash
-    npm start
+    npm run watch
     ```
 
-## Testing the bot using Bot Framework Emulator
-
-[Bot Framework Emulator](https://github.com/microsoft/botframework-emulator) is a desktop application that allows bot developers to test and debug their bots on localhost or running remotely through a tunnel.
-
-- Install the Bot Framework Emulator version 4.9.0 or greater from [here](https://github.com/Microsoft/BotFramework-Emulator/releases)
+## Trying out the bot using Bot Framework Emulator
 
 ### Connect to the bot using Bot Framework Emulator
 
@@ -51,37 +61,5 @@ This bot has been created using [Microsoft Bot Framework][1], it shows how to cr
 - File -> Open Bot
 - Enter a Bot URL of `http://localhost:3978/api/messages`
 
-## Rich Cards
+Play around with the bot and enjoy!!!.
 
-Most channels support rich content.  In this sample we explore the different types of rich cards your bot may use.  A key to good bot design is to send interactive media, such as Rich Cards. There are several different types of Rich Cards, which are as follows:
-
-- Animation Card
-- Audio Card
-- Hero Card
-- Receipt Card
-- Sign In Card
-- Thumbnail Card
-- Video Card
-
-When [designing the user experience](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-design-user-experience?view=azure-bot-service-4.0#cards) developers should consider adding visual elements such as Rich Cards.
-
-## Deploy the bot to Azure
-
-To learn more about deploying a bot to Azure, see [Deploy your bot to Azure](https://aka.ms/azuredeployment) for a complete list of deployment instructions.
-
-## Further reading
-
-- [Bot Framework Documentation](https://docs.botframework.com)
-- [Bot Basics](https://docs.microsoft.com/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0)
-- [Design the user experience](https://docs.microsoft.com/en-us/azure/bot-service/bot-service-design-user-experience?view=azure-bot-service-4.0#cards)
-- [Add media to messages](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-howto-add-media-attachments?view=azure-bot-service-4.0)
-- [Rich card types](https://docs.microsoft.com/en-us/azure/bot-service/rest-api/bot-framework-rest-connector-add-rich-cards?view=azure-bot-service-4.0)
-- [Activity processing](https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-activity-processing?view=azure-bot-service-4.0)
-- [Azure Bot Service Introduction](https://docs.microsoft.com/azure/bot-service/bot-service-overview-introduction?view=azure-bot-service-4.0)
-- [Azure Bot Service Documentation](https://docs.microsoft.com/azure/bot-service/?view=azure-bot-service-4.0)
-- [Azure CLI](https://docs.microsoft.com/cli/azure/?view=azure-cli-latest)
-- [Azure Portal](https://portal.azure.com)
-- [Language Understanding using LUIS](https://docs.microsoft.com/en-us/azure/cognitive-services/luis/)
-- [Channels and Bot Connector Service](https://docs.microsoft.com/en-us/azure/bot-service/bot-concepts?view=azure-bot-service-4.0)
-- [Restify](https://www.npmjs.com/package/restify)
-- [dotenv](https://www.npmjs.com/package/dotenv)
