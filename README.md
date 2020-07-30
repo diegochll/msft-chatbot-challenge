@@ -8,11 +8,11 @@ A Chat-bot that aims to help the user’s mental health through positivity, givi
 
 ### Features
 - Good News Feed
-⋅⋅⋅Fetches and displays the most upvoted posts from the r/Coronavirus subreddit.. flaired as **Good News** in a very friendly card for the user
+    - Fetches and displays the most upvoted posts from the r/Coronavirus subreddit.. flaired as **Good News** in a very friendly card for the user
 - Mental Health care/Meditation Techniques
-⋅⋅⋅Our bot guides the user through techniques for relaxation and anxiety relief
+    - Our bot guides the user through techniques for relaxation and anxiety relief
 - Real-Time COVID-19 Statistics
-⋅⋅⋅Cards with Real-Time statistics for a country of the users choice
+    - Cards with Real-Time statistics for a country of the users choice
 
 
 ## Prerequisites
