@@ -101,10 +101,10 @@ class CovidStatistics extends ComponentDialog {
                     "country_flag": "https://www.countryflags.io/"+countryLUT[covidStatisticsDetails.country]+"/flat/64.png",
                     "time_frame": covidStatisticsDetails.timeFrame,
                     "data": {
-                        "confirmed": response.confirmed,
-                        "deaths": response.deaths,
-                        "recovered": response.recovered,
-                        "rate_new_cases": response.rate_new_cases.toFixed(4)*100+"%"
+                        "confirmed": response.confirmed.toLocaleString(),
+                        "deaths": response.deaths.toLocaleString(),
+                        "recovered": response.recovered.toLocaleString(),
+                        "rate_new_cases": (response.rate_new_cases.toFixed(4)*100)+"%"
                     }
                 }
             });
@@ -179,7 +179,7 @@ class CovidStatistics extends ComponentDialog {
                 return {
                     confirmed: response.data.timelineitems[0][datesAvailable[datesAvailable.length-3]].total_cases,
                     deaths: response.data.timelineitems[0][datesAvailable[datesAvailable.length-3]].total_deaths,
-                    recovered: response.data.timelineitems[0][datesAvailable[datesAvailable.length-3]].total_recovered,
+                    recovered: response.data.timelineitems[0][datesAvailable[datesAvailable.length-3]].total_recoveries,
                     rate_new_cases:(response.data.timelineitems[0][datesAvailable[datesAvailable.length-4]].new_daily_cases !=0 ? 
                                 (response.data.timelineitems[0][datesAvailable[datesAvailable.length-3]].new_daily_cases /
                                 response.data.timelineitems[0][datesAvailable[datesAvailable.length-4]].new_daily_cases ): 0 )
