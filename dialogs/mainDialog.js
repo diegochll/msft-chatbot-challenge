@@ -1,6 +1,5 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
-
 const { AttachmentLayoutTypes, CardFactory, InputHints } = require('botbuilder');
 const { ChoicePrompt, ComponentDialog, DialogSet, DialogTurnStatus, WaterfallDialog } = require('botbuilder-dialogs');
 
@@ -108,6 +107,7 @@ class MainDialog extends ComponentDialog {
     * This method just gets a message activity and runs it through LUIS.
     */
     async onMessageActivity(stepContext) {
+        const covidStatisticsDetails = {};
         const activity = stepContext.context.activity;
         const traceActivity = {
             type: ActivityTypes.Trace,
@@ -139,7 +139,13 @@ class MainDialog extends ComponentDialog {
 
             switch (topIntent) {
                 case 'CovidStatistics':
-                    return await this.beginCovidStatistics(stepContext);
+                    const countryEntities = this.luis_.getCountryEntities(luisResult);
+                    const timeFrameEntities = this.luis_.getTimeFrameEntities(luisResult);
+                    
+                    covidStatisticsDetails.country=countryEntities.country;
+                    covidStatisticsDetails.timeFrame=timeFrameEntities.timeFrame;
+                    
+                    return await this.beginCovidStatistics(stepContext,covidStatisticsDetails);
                 case 'Greet':
                     return await this.beginGreet(stepContext);
                 default: {
@@ -153,10 +159,9 @@ class MainDialog extends ComponentDialog {
         return { status: DialogTurnStatus.complete };
     }
 
-    async beginCovidStatistics(stepContext) {
+    async beginCovidStatistics(stepContext, covidStatisticsDetails) {
         const activity = stepContext.context.activity;
-        const covidStatisticsDetails = activity.value || {};
-
+        
         // Start the covidStatistics dialog.
         const covidStatisticsDialog = this.findDialog(COVID_STATISTICS);
         return await stepContext.beginDialog(covidStatisticsDialog.id, covidStatisticsDetails);

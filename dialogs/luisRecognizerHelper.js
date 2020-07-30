@@ -34,7 +34,15 @@ class LuisRecognizerHelper {
         if (result.entities.$instance.country) {
             countryValue = result.entities.$instance.country[0].text;
         }
-        return { to: countryValue };
+        return { country: countryValue };
+    }
+
+    getTimeFrameEntities(result) {
+        let timeFrameValue;
+        if (result.entities.timeFrame && result.entities.timeFrame.length>0) {
+            timeFrameValue = result.entities.timeFrame[0];
+        }
+        return { timeFrame: timeFrameValue };
     }
     
 }
