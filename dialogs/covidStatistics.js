@@ -118,19 +118,19 @@ class CovidStatistics extends ComponentDialog {
     getChoices() {
         const timeFrameOptions = [
             {
-                value: 'today',
+                value: 'Today',
             },
             {
-                value: 'last week'
+                value: 'Last Week'
             },
             {
-                value: 'last two weeks'
+                value: 'Last Two Weeks'
             },
             {
-                value: 'last month'
+                value: 'Last Month'
             },
             {
-                value: 'overall'
+                value: 'Overall'
             }
         ];
 

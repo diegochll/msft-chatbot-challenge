@@ -143,10 +143,6 @@ class Relax extends ComponentDialog {
         value: "Audioguide Card",
         synonyms: ["audioguide"],
       },
-      {
-        value: "All Cards",
-        synonyms: ["all"],
-      },
     ];
 
     return relaxOptions;
