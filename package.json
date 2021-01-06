@@ -17,7 +17,7 @@
     },
     "dependencies": {
         "adaptivecards-templating": "^1.0.0",
-        "axios": "^0.16.2",
+        "axios": "^0.21.1",
         "botbuilder": "~4.9.1",
         "botbuilder-ai": "^4.9.3",
         "botbuilder-core": "^4.9.3",
